@@ -2,13 +2,14 @@ package nl.multicode.bsn.service;
 
 import nl.multicode.bsn.model.BurgeServiceNummer;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class BsnService {
+
+    private static final int MIN = 100_000_000;
+    private static final int MAX = 999_999_998;
 
     private final Validator validator;
 
@@ -16,15 +17,17 @@ public class BsnService {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
+    public BsnService(Validator validator) {
+        this.validator = validator;
+    }
+
     public String generateBsn() {
-        Long bsn = null;
-        while (bsn == null) {
-            Long randomNumber = (long) ThreadLocalRandom.current().nextInt(100_000_000, 999_999_998 + 1);
-            if (isValidBsn(new BurgeServiceNummer(randomNumber.toString()))) {
-                bsn = randomNumber;
+        while (true) {
+            Long randomBsn = (long) ThreadLocalRandom.current().nextInt(MIN, MAX + 1);
+            if (isValidBsn(new BurgeServiceNummer(randomBsn.toString()))) {
+                return randomBsn.toString();
             }
         }
-        return bsn.toString();
     }
 
     public boolean isValidBsn(BurgeServiceNummer bsn) {

@@ -11,27 +11,17 @@ public class BsnValidator implements ConstraintValidator<BsnConstraint, String> 
 
     @Override
     public boolean isValid(String bsn, ConstraintValidatorContext cxt) {
-        return bsn != null && bsn.matches("[0-9]{9}") && isElfProef(bsn);
+        return bsn != null && bsn.matches("[0-9]{9}") && isElfproef(bsn);
     }
 
-
-    private boolean isElfProef(String bsn) {
-        long[] bsn_multipliers = {9, 8, 7, 6, 5, 4, 3, 2, -1};
-        long[] bsn_digits = getDigits(bsn);
-        long sum = 0;
-        for (int i = 0; i < bsn_multipliers.length; i++) {
-            sum += bsn_digits[i] * bsn_multipliers[i];
+    private boolean isElfproef(String bsn) {
+        int checksum = 0;
+        for (int index = 0; index < 8; index++) {
+            checksum += (Integer.parseInt(Character.toString(bsn.charAt(index))) * (9 - index));
         }
-        return sum % 11 == 0;
-    }
+        checksum -= Integer.parseInt(Character.toString(bsn.charAt(8)));
 
-    private long[] getDigits(String nummer) {
-        long[] digits = new long[9];
-
-        for (int i = nummer.length() - 1, j = 1; i >= 0; i--, j++) {
-            digits[digits.length - j] = Character.getNumericValue(nummer.charAt(i));
-        }
-        return digits;
+        return checksum % 11 == 0;
     }
 
 }

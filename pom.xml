@@ -16,6 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+        <pitest.threshold>95</pitest.threshold>
     </properties>
 
     <dependencies>
@@ -61,8 +62,56 @@
             <artifactId>pitest-maven</artifactId>
             <version>1.4.10</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <version>2.23.4</version>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>pitest</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-maven</artifactId>
+                        <version>1.4.10</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>mutationCoverage</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <timeoutConstant>5000</timeoutConstant>
+                            <timestampedReports>false</timestampedReports>
+                            <mutationThreshold>${pitest.threshold}</mutationThreshold>
+                            <coverageThreshold>${pitest.threshold}</coverageThreshold>
+                            <failWhenNoMutations>true</failWhenNoMutations>
+                            <targetClasses>
+                                <param>nl.multicode.bsn.*</param>
+                                <param>nl.multicode.bsn.service.*</param>
+                                <param>nl.multicode.bsn.validation.*</param>
+                            </targetClasses>
+                            <targetTests>
+                                <param>nl.multicode.bsn.*</param>
+                                <param>nl.multicode.bsn.service.*</param>
+                                <param>nl.multicode.bsn.validation.*</param>
+                            </targetTests>
+                            <excludedClasses>
+                                <excludedClass>nl.multicode.bsn.model.*</excludedClass>
+                            </excludedClasses>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <build>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
@@ -123,30 +172,6 @@
                             <mainClass>nl.multicode.bsn.App</mainClass>
                         </manifest>
                     </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.pitest</groupId>
-                <artifactId>pitest-maven</artifactId>
-                <version>1.4.10</version>
-                <executions>
-                    <execution>
-                        <id>pit-report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>mutationCoverage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <targetClasses>
-                        <param>nl.multicode.bsn.service.*</param>
-                        <param>nl.multicode.bsn.validation.*</param>
-                    </targetClasses>
-                    <targetTests>
-                        <param>nl.multicode.bsn.service.*</param>
-                        <param>nl.multicode.bsn.validation.*</param>
-                    </targetTests>
                 </configuration>
             </plugin>
         </plugins>
